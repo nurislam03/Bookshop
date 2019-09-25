@@ -83,13 +83,32 @@ func createBook(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(book)
 }
 
+// Update book
+func updateBook(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	bID := chi.URLParam(r, "id")
+	for index, item := range books {
+		if item.ID == bID {
+			books = append(books[:index], books[index+1:]...)
+
+			var book Book
+			_ = json.NewDecoder(r.Body).Decode(&book)
+			book.ID = bID
+			books = append(books, book)
+			json.NewEncoder(w).Encode(book)
+			return
+		}
+	}
+}
+
 func booksRouter() http.Handler {
 	r := chi.NewRouter()
 
 	r.Get("/", getBooks)
 	r.Get("/{id}", getBook)
 	r.Post("/", createBook)
-	// r.Put("/{id}", updateBook)
+	r.Put("/{id}", updateBook)
 	// r.Delete("/{id}", deleteBook)
 	return r
 }
