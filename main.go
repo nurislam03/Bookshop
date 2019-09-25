@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -39,14 +40,20 @@ func indexRouter() http.Handler {
 	return r
 }
 
+// Get all books
+func getBooks(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(books)
+}
+
 func booksRouter() http.Handler {
 	r := chi.NewRouter()
 
 	r.Get("/", getBooks)
-	r.Get("/{id}", getBook)
-	r.Post("/", creaeBook)
-	r.Put("/{id}", updateBook)
-	r.Delete("/{id}", deleteBook)
+	// r.Get("/{id}", getBook)
+	// r.Post("/", creaeBook)
+	// r.Put("/{id}", updateBook)
+	// r.Delete("/{id}", deleteBook)
 	return r
 }
 
