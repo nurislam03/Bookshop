@@ -39,6 +39,17 @@ func indexRouter() http.Handler {
 	return r
 }
 
+func booksRouter() http.Handler {
+	r := chi.NewRouter()
+
+	r.Get("/", getBooks)
+	r.Get("/{id}", getBook)
+	r.Post("/", creaeBook)
+	r.Put("/{id}", updateBook)
+	r.Delete("/{id}", deleteBook)
+	return r
+}
+
 func main() {
 
 	// Hardcoded data - @todo: add database
@@ -48,6 +59,7 @@ func main() {
 	// initializing router
 	r := chi.NewRouter()
 	r.Mount("/index", indexRouter())
+	r.Mount("/books", booksRouter())
 
 	// starting server
 	log.Println("Server Running at port: 8080")
