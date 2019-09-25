@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"math/rand"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi"
 )
@@ -70,12 +72,23 @@ func getBook(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&Book{})
 }
 
+// Add new book
+func createBook(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var book Book
+	_ = json.NewDecoder(r.Body).Decode(&book)
+	book.ID = strconv.Itoa(rand.Intn(100000000)) // Mock ID - not safe
+	books = append(books, book)
+	json.NewEncoder(w).Encode(book)
+}
+
 func booksRouter() http.Handler {
 	r := chi.NewRouter()
 
 	r.Get("/", getBooks)
 	r.Get("/{id}", getBook)
-	// r.Post("/", creaeBook)
+	r.Post("/", createBook)
 	// r.Put("/{id}", updateBook)
 	// r.Delete("/{id}", deleteBook)
 	return r
