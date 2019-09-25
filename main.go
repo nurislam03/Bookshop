@@ -87,19 +87,49 @@ func createBook(w http.ResponseWriter, r *http.Request) {
 func updateBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	var noBookFound = true
 	bID := chi.URLParam(r, "id")
+
 	for index, item := range books {
 		if item.ID == bID {
-			books = append(books[:index], books[index+1:]...)
-
+			//books = append(books[:index], books[index+1:]...)
+			noBookFound = false
 			var book Book
 			_ = json.NewDecoder(r.Body).Decode(&book)
 			book.ID = bID
-			books = append(books, book)
+			//books = append(books, book)
+			books[index] = book
 			json.NewEncoder(w).Encode(book)
 			return
 		}
 	}
+
+	if noBookFound == true {
+		http.Error(w, http.StatusText(404), 404)
+		return
+	}
+}
+
+// Delete book
+func deleteBook(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var noBookFound = true
+	bID := chi.URLParam(r, "id")
+
+	for index, item := range books {
+		if item.ID == bID {
+			noBookFound = false
+			books = append(books[:index], books[index+1:]...)
+			break
+		}
+	}
+
+	if noBookFound == true {
+		http.Error(w, http.StatusText(404), 404)
+		return
+	}
+	json.NewEncoder(w).Encode(books)
 }
 
 func booksRouter() http.Handler {
@@ -109,7 +139,7 @@ func booksRouter() http.Handler {
 	r.Get("/{id}", getBook)
 	r.Post("/", createBook)
 	r.Put("/{id}", updateBook)
-	// r.Delete("/{id}", deleteBook)
+	r.Delete("/{id}", deleteBook)
 	return r
 }
 
