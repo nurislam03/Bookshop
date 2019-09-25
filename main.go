@@ -46,11 +46,35 @@ func getBooks(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(books)
 }
 
+// Get single book
+func getBook(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	bID := chi.URLParam(r, "id")
+	log.Println("BOOK-ID:", bID)
+
+	// Loop through books and find one with the id from the params
+	var noBookFound = true
+	for _, item := range books {
+		if item.ID == bID {
+			noBookFound = false
+			json.NewEncoder(w).Encode(item)
+			return
+		}
+	}
+
+	if noBookFound == true {
+		http.Error(w, http.StatusText(404), 404)
+		return
+	}
+	json.NewEncoder(w).Encode(&Book{})
+}
+
 func booksRouter() http.Handler {
 	r := chi.NewRouter()
 
 	r.Get("/", getBooks)
-	// r.Get("/{id}", getBook)
+	r.Get("/{id}", getBook)
 	// r.Post("/", creaeBook)
 	// r.Put("/{id}", updateBook)
 	// r.Delete("/{id}", deleteBook)
