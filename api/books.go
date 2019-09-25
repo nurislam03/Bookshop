@@ -13,7 +13,13 @@ import (
 // Get all books
 func getBooks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	books := data.GetAllBooks()
+
+	books, err := data.GetAllBooks()
+	if err != nil {
+		log.Println(err)
+		http.Error(w, http.StatusText(404), 404)
+		return
+	}
 	json.NewEncoder(w).Encode(books)
 }
 
@@ -29,7 +35,6 @@ func getBook(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(404), 404)
 		return
 	}
-
 	json.NewEncoder(w).Encode(book)
 }
 
