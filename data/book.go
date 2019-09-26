@@ -2,8 +2,6 @@ package data
 
 import (
 	"errors"
-	"math/rand"
-	"strconv"
 
 	"github.com/nurislam03/Bookshop/model"
 )
@@ -56,7 +54,6 @@ func DeleteBookByID(id string) ([]*model.Book, error) {
 
 // AddNewBook ...
 func AddNewBook(book *model.Book) (*model.Book, error) {
-	book.ID = strconv.Itoa(rand.Intn(100000000)) // Mock ID - not safe
 	books = append(books, book)
 	return book, nil
 }
