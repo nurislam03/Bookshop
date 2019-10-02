@@ -8,15 +8,14 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi"
-	"github.com/nurislam03/Bookshop/data"
 	"github.com/nurislam03/Bookshop/model"
 )
 
 // Get all books
-func getBooks(w http.ResponseWriter, r *http.Request) {
+func (api *API) getBooks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	books, err := data.GetAllBooks()
+	books, err := api.BookDataStore.GetAllBooks()
 	if err != nil {
 		log.Println(err)
 		http.Error(w, http.StatusText(404), 404)
@@ -26,13 +25,13 @@ func getBooks(w http.ResponseWriter, r *http.Request) {
 }
 
 // Get single book
-func getBook(w http.ResponseWriter, r *http.Request) {
+func (api *API) getBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	bID := chi.URLParam(r, "id")
 	log.Println("BOOK-ID:", bID)
 
-	book, err := data.GetBookByID(bID)
+	book, err := api.BookDataStore.GetBookByID(bID)
 	if err != nil {
 		http.Error(w, http.StatusText(404), 404)
 		return
@@ -50,7 +49,7 @@ type createBookBody struct {
 }
 
 // Add new book
-func createBook(w http.ResponseWriter, r *http.Request) {
+func (api *API) createBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	body := &createBookBody{}
@@ -66,7 +65,7 @@ func createBook(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	book, err := data.AddNewBook(book)
+	book, err := api.BookDataStore.AddNewBook(book)
 	if err != nil {
 		http.Error(w, http.StatusText(404), 404)
 		return
@@ -74,16 +73,36 @@ func createBook(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(book)
 }
 
+type updateBookBody struct {
+	Isbn   string `json:"isbn"`
+	Title  string `json:"title"`
+	Author struct {
+		Firstname string `json:"firstname"`
+		Lastname  string `json:"lastname"`
+	} `json:"author"`
+}
+
 // Update book
-func updateBook(w http.ResponseWriter, r *http.Request) {
+func (api *API) updateBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	body := &updateBookBody{}
+	_ = json.NewDecoder(r.Body).Decode(body)
+
 	bID := chi.URLParam(r, "id")
+	// log.Println(bID)
 
-	book := &model.Book{}
-	_ = json.NewDecoder(r.Body).Decode(book)
+	book := &model.Book{
+		ID:    bID,
+		Isbn:  body.Isbn,
+		Title: body.Title,
+		Author: &model.Author{
+			Firstname: body.Author.Firstname,
+			Lastname:  body.Author.Lastname,
+		},
+	}
 
-	book, err := data.UpdateBookByID(bID, book)
+	book, err := api.BookDataStore.UpdateBookByID(bID, book)
 
 	if err != nil {
 		http.Error(w, http.StatusText(404), 404)
@@ -93,15 +112,15 @@ func updateBook(w http.ResponseWriter, r *http.Request) {
 }
 
 // Delete book
-func deleteBook(w http.ResponseWriter, r *http.Request) {
+func (api *API) deleteBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	bID := chi.URLParam(r, "id")
 
-	books, err := data.DeleteBookByID(bID)
+	err := api.BookDataStore.DeleteBookByID(bID)
 	if err != nil {
 		http.Error(w, http.StatusText(404), 404)
 		return
 	}
-	json.NewEncoder(w).Encode(books)
+	json.NewEncoder(w).Encode("{status: success}")
 }
