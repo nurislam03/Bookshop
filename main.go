@@ -16,7 +16,7 @@ func main() {
 
 	// starting server
 	bookDataStore := &mongo.BookDataStore{
-		URL: "mongodb+srv://bookshop:bookshop123@mongobookshop-n7agh.mongodb.net/test?retryWrites=true&w=majority",
+		URL: "mongodb+srv://<example>:<example123>@mongobookshop-n7agh.mongodb.net/test?retryWrites=true&w=majority",
 	}
 	api := api.API{
 		BookDataStore: bookDataStore,
